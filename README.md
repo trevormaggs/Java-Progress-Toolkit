@@ -1,5 +1,4 @@
 # Java-Progress-Toolkit
-A thread-safe progress reporting framework for Java, providing seamless synchronisation between background tasks and CLI or Swing interfaces
 
 A lightweight, decoupled, and thread-safe progress reporting framework for Java. This toolkit provides a seamless way to execute background tasks while synchronising progress updates with either **Command Line Interfaces (CLI)** or **Swing Graphical Interfaces (GUI)**.
 
