@@ -47,10 +47,10 @@ public class TestSampleGui extends JFrame
 
         SwingProgressAdapter adapter = new SwingProgressAdapter(progressBar, 1, totalFiles);
 
-        WorkTask myTask = new WorkTask()
+        TaskDespatcher myTask = new TaskDespatcher()
         {
             @Override
-            public void execute(ProgressListener bridgeListener) throws Exception
+            public void despatch(ProgressListener bridgeListener) throws Exception
             {
                 for (int i = 1; i <= totalFiles; i++)
                 {

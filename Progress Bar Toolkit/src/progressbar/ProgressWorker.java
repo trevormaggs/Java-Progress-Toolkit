@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class ProgressWorker extends SwingWorker<Void, ProgressWorker.ProgressUpdate>
 {
-    private final WorkTask task;
+    private final TaskDespatcher task;
     private final List<ProgressListener> guiListeners;
 
     /**
@@ -53,7 +53,7 @@ public class ProgressWorker extends SwingWorker<Void, ProgressWorker.ProgressUpd
      * @param guiListeners
      *        listeners (usually UI adapters) that require updates on the EDT
      */
-    public ProgressWorker(WorkTask task, List<ProgressListener> guiListeners)
+    public ProgressWorker(TaskDespatcher task, List<ProgressListener> guiListeners)
     {
         this.task = task;
         this.guiListeners = guiListeners;
@@ -70,7 +70,7 @@ public class ProgressWorker extends SwingWorker<Void, ProgressWorker.ProgressUpd
     @Override
     protected Void doInBackground() throws Exception
     {
-        task.execute(new ProgressListener()
+        task.despatch(new ProgressListener()
         {
             @Override
             public void onProgressUpdate(int current)
