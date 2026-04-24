@@ -4,7 +4,7 @@ import javax.swing.SwingWorker;
 import java.util.List;
 
 /**
- * A generic background worker that executes a {@link WorkTask} and notifies registered
+ * A generic background worker that executes a {@link TaskDespatcher} and notifies registered
  * {@link ProgressListener}s on the Event Dispatch Thread (EDT).
  * 
  * <p>
