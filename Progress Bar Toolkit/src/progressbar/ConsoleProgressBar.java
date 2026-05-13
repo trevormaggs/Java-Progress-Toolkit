@@ -1,5 +1,7 @@
 package progressbar;
 
+import java.util.Arrays;
+
 /**
  * A stateful ProgressListener that renders an ASCII progress bar to the standard output stream.
  * Mimics the behaviour of a JProgressBar for command-line interfaces.
@@ -11,6 +13,7 @@ package progressbar;
 public final class ConsoleProgressBar implements ProgressListener
 {
     private static final int BAR_WIDTH = 50;
+    private final char[] barBuffer = new char[BAR_WIDTH];
     private final int min;
     private final int max;
     private int lastPercent = -1;
@@ -105,31 +108,22 @@ public final class ConsoleProgressBar implements ProgressListener
      */
     private void render(int current, int total, int percent)
     {
-        StringBuilder sb = new StringBuilder(BAR_WIDTH + 10);
-        int filledWidth = (percent * BAR_WIDTH) / 100;
+        int filled = (percent * BAR_WIDTH) / 100;
 
-        sb.append("\r[");
+        Arrays.fill(barBuffer, 0, filled, '=');
 
-        for (int i = 0; i < BAR_WIDTH; i++)
+        if (filled < BAR_WIDTH)
         {
-            if (i < filledWidth)
-            {
-                sb.append("=");
-            }
+            barBuffer[filled] = (current < total) ? '>' : ' ';
 
-            else if (i == filledWidth && current < total)
+            if (filled + 1 < BAR_WIDTH)
             {
-                sb.append(">");
-            }
-
-            else
-            {
-                sb.append(" ");
+                Arrays.fill(barBuffer, filled + 1, BAR_WIDTH, ' ');
             }
         }
 
-        sb.append("] %3d%%");
-
-        System.out.printf(sb.toString(), percent);
+        System.out.print("\r[");
+        System.out.print(barBuffer);
+        System.out.printf("] %3d%%", percent);
     }
 }
