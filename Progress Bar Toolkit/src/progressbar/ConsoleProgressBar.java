@@ -16,6 +16,7 @@ public final class ConsoleProgressBar implements ProgressListener
     private final char[] barBuffer = new char[BAR_WIDTH];
     private final int min;
     private final int max;
+    private int lastTotal = -1;
     private int lastPercent = -1;
 
     /**
@@ -69,7 +70,7 @@ public final class ConsoleProgressBar implements ProgressListener
     @Override
     public void onProgressUpdate(int current, int total)
     {
-        int actualMax = (total > 0 ? total : this.max);
+        int actualMax = (total > 0 ? total : max);
 
         if (actualMax <= min)
         {
@@ -78,6 +79,48 @@ public final class ConsoleProgressBar implements ProgressListener
 
         int safeCurrent = Math.max(min, current);
         int percent = (int) (((double) (safeCurrent - min) / (actualMax - min)) * 100);
+
+        if (percent > 100)
+        {
+            percent = 100;
+        }
+
+        // Fixed Efficiency Check: Only skip rendering if BOTH percent AND total match the last draw
+        if (percent == lastPercent && actualMax == lastTotal && current < actualMax)
+        {
+            return;
+        }
+
+        lastPercent = percent;
+        lastTotal = actualMax;
+
+        render(current, actualMax, percent);
+
+        if (current >= actualMax)
+        {
+            System.out.println();
+            System.out.println();
+            lastPercent = -1;
+            lastTotal = -1;
+        }
+    }
+
+    public void onProgressUpdate2(int current, int total)
+    {
+        int actualMax = (total > 0 ? total : max);
+
+        if (actualMax <= min)
+        {
+            return;
+        }
+
+        int safeCurrent = Math.max(min, current);
+        int percent = (int) (((double) (safeCurrent - min) / (actualMax - min)) * 100);
+
+        if (percent > 100)
+        {
+            percent = 100;
+        }
 
         // Efficiency check: only redraw if the percentage has actually incremented
         if (percent == lastPercent && current < actualMax)
@@ -92,6 +135,7 @@ public final class ConsoleProgressBar implements ProgressListener
         if (current >= actualMax)
         {
             System.out.println();
+            System.out.println();
             lastPercent = -1;
         }
     }
@@ -105,6 +149,10 @@ public final class ConsoleProgressBar implements ProgressListener
      *        the total target value
      * @param percent
      *        the pre-calculated percentage (0-100)
+     * 
+     * @throws ArrayIndexOutOfBoundsException
+     *         if percent is greater than 100. Therefore, it must be guarded against excess prior to
+     *         invocation
      */
     private void render(int current, int total, int percent)
     {
