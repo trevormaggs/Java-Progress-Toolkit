@@ -16,8 +16,8 @@ public final class ConsoleProgressBar implements ProgressListener
     private final char[] barBuffer = new char[BAR_WIDTH];
     private final int min;
     private final int max;
-    private int lastTotal = -1;
-    private int lastPercent = -1;
+    private long lastMetricsSnapshot = -1;
+    private boolean done;
 
     /**
      * Constructs an instance with a default range of 0 to 100.
@@ -54,89 +54,56 @@ public final class ConsoleProgressBar implements ProgressListener
     }
 
     /**
-     * Updates the progress with a dynamically specified total.
-     * 
+     * Updates the progress bar with a dynamically specified total workload.
+     *
      * <p>
-     * This method calculates the completion percentage and triggers a re-render only if the
-     * percentage has changed since the last call. This prevents unnecessary console flicker. If the
-     * current value meets or exceeds the total, a new line is appended.
+     * The current progress and total workload values are packed into a single 64-bit state
+     * snapshot. The progress bar is re-rendered only when this snapshot differs from the previous
+     * update, preventing redundant console redraws (flickering) while preserving exact change
+     * detection.
      * </p>
-     * 
+     *
      * @param current
      *        the current progress value
      * @param total
-     *        the total value. If it is 0 or less, the max value defined at constructor is assumed
+     *        the total workload value. If {@code 0} or less, the fallback maximum value specified
+     *        at construction time is used
      */
     @Override
     public void onProgressUpdate(int current, int total)
     {
-        int actualMax = (total > 0 ? total : max);
+        int actualCurrent = Math.max(min, current);
+        int actualMax = (total <= 0 ? max : total);
 
-        if (actualMax <= min)
+        if (actualCurrent < actualMax)
+        {
+            done = false;
+        }
+
+        if (done || min > actualMax)
         {
             return;
         }
 
-        int safeCurrent = Math.max(min, current);
-        int percent = (int) (((double) (safeCurrent - min) / (actualMax - min)) * 100);
+        // Compute single 64-bit primitive snapshot for fast comparison and prevent flickering
+        long newMetrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
 
-        if (percent > 100)
-        {
-            percent = 100;
-        }
-
-        // Fixed Efficiency Check: Only skip rendering if BOTH percent AND total match the last draw
-        if (percent == lastPercent && actualMax == lastTotal && current < actualMax)
+        if (newMetrics == lastMetricsSnapshot)
         {
             return;
         }
 
-        lastPercent = percent;
-        lastTotal = actualMax;
+        int percent = (int) (((double) (actualCurrent - min) / (actualMax - min)) * 100);
+
+        lastMetricsSnapshot = newMetrics;
 
         render(current, actualMax, percent);
 
-        if (current >= actualMax)
+        if (actualCurrent >= actualMax || percent >= 100)
         {
             System.out.println();
             System.out.println();
-            lastPercent = -1;
-            lastTotal = -1;
-        }
-    }
-
-    public void onProgressUpdate2(int current, int total)
-    {
-        int actualMax = (total > 0 ? total : max);
-
-        if (actualMax <= min)
-        {
-            return;
-        }
-
-        int safeCurrent = Math.max(min, current);
-        int percent = (int) (((double) (safeCurrent - min) / (actualMax - min)) * 100);
-
-        if (percent > 100)
-        {
-            percent = 100;
-        }
-
-        // Efficiency check: only redraw if the percentage has actually incremented
-        if (percent == lastPercent && current < actualMax)
-        {
-            return;
-        }
-
-        lastPercent = percent;
-
-        render(current, actualMax, percent);
-
-        if (current >= actualMax)
-        {
-            System.out.println();
-            System.out.println();
-            lastPercent = -1;
+            done = true;
         }
     }
 
