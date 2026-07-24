@@ -3,9 +3,9 @@ package progressbar;
 import java.util.Arrays;
 
 /**
- * A stateful ProgressListener that renders an ASCII progress bar to the standard output stream.
- * Mimics the behaviour of a JProgressBar for command-line interfaces.
- * 
+ * A stateful {@link ProgressListener} that renders an ASCII progress bar to the standard output
+ * stream. It mimics the behaviour of a {@code JProgressBar} for command-line applications.
+ *
  * @author Trevor Maggs
  * @version 0.3
  * @since 15 April 2026
@@ -28,8 +28,8 @@ public final class ConsoleProgressBar implements ProgressListener
     }
 
     /**
-     * Constructs an instance with a specific range.
-     * 
+     * Constructs a progress bar with the specified minimum and maximum values.
+     *
      * @param min
      *        the starting value of the range
      * @param max
@@ -42,8 +42,9 @@ public final class ConsoleProgressBar implements ProgressListener
     }
 
     /**
-     * Updates the progress using the default maximum value defined at construction.
-     * 
+     * Updates the progress using the maximum value specified when this progress bar was
+     * constructed.
+     *
      * @param current
      *        the current progress value
      */
@@ -108,18 +109,24 @@ public final class ConsoleProgressBar implements ProgressListener
     }
 
     /**
-     * Performs the actual terminal rendering using carriage returns and string formatting.
-     * 
+     * Resets the progress bar so it can be reused for another operation.
+     */
+    @Override
+    public void reset()
+    {
+        this.done = false;
+        this.lastMetricsSnapshot = -1;
+    }
+
+    /**
+     * Renders the current progress bar state to the terminal.
+     *
      * @param current
      *        the current progress value
      * @param total
      *        the total target value
      * @param percent
      *        the pre-calculated percentage (0-100)
-     * 
-     * @throws ArrayIndexOutOfBoundsException
-     *         if percent is greater than 100. Therefore, it must be guarded against excess prior to
-     *         invocation
      */
     private void render(int current, int total, int percent)
     {
