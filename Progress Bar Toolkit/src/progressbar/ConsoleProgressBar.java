@@ -7,7 +7,7 @@ import java.util.Arrays;
  * stream. It mimics the behaviour of a {@code JProgressBar} for command-line applications.
  *
  * @author Trevor Maggs
- * @version 0.3
+ * @version 0.4
  * @since 15 April 2026
  */
 public final class ConsoleProgressBar implements ProgressListener
@@ -16,7 +16,7 @@ public final class ConsoleProgressBar implements ProgressListener
     private final char[] barBuffer = new char[BAR_WIDTH];
     private final int min;
     private final int max;
-    private long lastMetricsSnapshot = -1;
+    private long lastMetricsSnapshot = Long.MIN_VALUE;
     private boolean done;
 
     /**
@@ -94,7 +94,8 @@ public final class ConsoleProgressBar implements ProgressListener
             return;
         }
 
-        int percent = (int) (((double) (actualCurrent - min) / (actualMax - min)) * 100);
+        int range = actualMax - min;
+        int percent = (range > 0) ? (int) (((double) (actualCurrent - min) / range) * 100) : 0;
 
         lastMetricsSnapshot = newMetrics;
 
@@ -115,7 +116,7 @@ public final class ConsoleProgressBar implements ProgressListener
     public void reset()
     {
         this.done = false;
-        this.lastMetricsSnapshot = -1;
+        this.lastMetricsSnapshot = Long.MIN_VALUE;
     }
 
     /**

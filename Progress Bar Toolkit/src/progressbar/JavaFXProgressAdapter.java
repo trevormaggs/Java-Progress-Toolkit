@@ -21,7 +21,7 @@ public class JavaFXProgressAdapter implements ProgressListener
     private final int min;
     private final int max;
     private final ProgressBar progressBar;
-    private volatile long lastMetricsSnapshot = -1;
+    private volatile long lastMetricsSnapshot = Long.MIN_VALUE;
 
     /**
      * Constructs an instance with a default range of 0 to 100.
@@ -135,7 +135,7 @@ public class JavaFXProgressAdapter implements ProgressListener
     @Override
     public void reset()
     {
-        this.lastMetricsSnapshot = -1;
+        this.lastMetricsSnapshot = Long.MIN_VALUE;
 
         if (progressBar != null)
         {
