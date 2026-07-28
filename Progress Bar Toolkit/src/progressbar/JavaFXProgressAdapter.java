@@ -116,14 +116,14 @@ public class JavaFXProgressAdapter implements ProgressListener
             double progress = (range > 0) ? (double) (actualCurrent - min) / range : 0.0;
 
             // Bound double to [0.0, 1.0] interval
-            final double clampedProgress = Math.min(1.0, Math.max(0.0, progress));
+            double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
 
             Platform.runLater(new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    progressBar.setProgress(clampedProgress);
+                    progressBar.setProgress(boundedProgress);
                 }
             });
         }
