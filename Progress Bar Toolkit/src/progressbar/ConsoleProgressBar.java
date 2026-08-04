@@ -14,9 +14,9 @@ public final class ConsoleProgressBar implements ProgressListener
 {
     private static final int BAR_WIDTH = 50;
     private final char[] barBuffer = new char[BAR_WIDTH];
+    private long lastMetricsSnapshot;
     private final int min;
     private final int max;
-    private long lastMetricsSnapshot = Long.MIN_VALUE;
     private boolean done;
 
     /**
@@ -39,6 +39,8 @@ public final class ConsoleProgressBar implements ProgressListener
     {
         this.min = min;
         this.max = max;
+
+        reset();
     }
 
     /**
