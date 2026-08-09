@@ -95,37 +95,35 @@ public class JavaFXProgressAdapter implements ProgressListener
         int actualCurrent = Math.max(min, current);
         int actualMax = (total <= 0 ? max : total);
 
-        if (min > actualMax)
+        if (min <= actualMax)
         {
-            return;
-        }
-
-        if (progressBar != null)
-        {
-            long metrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
-
-            if (metrics != lastMetricsSnapshot)
+            if (actualCurrent >= actualMax)
             {
-                lastMetricsSnapshot = metrics;
-
-                int range = actualMax - min;
-                double progress = (range > 0 ? (double) (actualCurrent - min) / range : 0.0);
-                double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
-
-                Platform.runLater(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        progressBar.setProgress(boundedProgress);
-                    }
-                });
+                onCompleted(actualMax);
             }
-        }
 
-        if (actualCurrent >= actualMax)
-        {
-            onCompleted(actualMax);
+            if (progressBar != null)
+            {
+                long metrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
+
+                if (metrics != lastMetricsSnapshot)
+                {
+                    lastMetricsSnapshot = metrics;
+
+                    int range = actualMax - min;
+                    double progress = (range > 0 ? (double) (actualCurrent - min) / range : 0.0);
+                    double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
+
+                    Platform.runLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            progressBar.setProgress(boundedProgress);
+                        }
+                    });
+                }
+            }
         }
     }
 
