@@ -2,12 +2,12 @@ package progressbar;
 
 /**
  * Defines a listener that receives progress updates from long-running operations.
- *
+ * 
  * @author Trevor Maggs
- * @version 0.5
- * @since 9 August 2026
+ * @version 0.4
+ * @since 15 April 2026
  */
-public interface ProgressListener
+public interface ProgressListener2
 {
     /**
      * Notifies the listener that progress has advanced using the listener's configured total
@@ -21,11 +21,6 @@ public interface ProgressListener
     /**
      * Notifies the listener that progress has advanced using the specified total workload.
      *
-     * <p>
-     * When {@code current} reaches {@code total}, the operation is considered complete and
-     * {@link #onCompleted(int)} is invoked.
-     * </p>
-     *
      * @param current
      *        the current progress position
      * @param total
@@ -34,21 +29,10 @@ public interface ProgressListener
     void onProgressUpdate(int current, int total);
 
     /**
-     * Notifies the listener that the operation has completed.
-     *
-     * @param total
-     *        the total workload completed
-     */
-    default void onCompleted(int total)
-    {
-        // Default no-op for listeners that do not need completion notification.
-    }
-
-    /**
      * Resets any internal state maintained by the listener, preparing it for reuse.
      */
     default void reset()
     {
-        // Default no-op for state-less listeners.
+        // Default no-op for stateless listeners.
     }
 }

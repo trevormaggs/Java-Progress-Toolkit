@@ -16,7 +16,7 @@ import javafx.scene.control.ProgressBar;
  * @since 15 April 2026
  */
 @SuppressWarnings("deprecation")
-public class JavaFXProgressAdapter implements ProgressListener
+public class JavaFXProgressAdapter2 implements ProgressListener
 {
     private final int min;
     private final int max;
@@ -29,7 +29,7 @@ public class JavaFXProgressAdapter implements ProgressListener
      * @param progressBar
      *        the JavaFX control to be updated
      */
-    public JavaFXProgressAdapter(ProgressBar progressBar)
+    public JavaFXProgressAdapter2(ProgressBar progressBar)
     {
         this(progressBar, 0, 100);
     }
@@ -44,7 +44,7 @@ public class JavaFXProgressAdapter implements ProgressListener
      * @param max
      *        the ending value of the range
      */
-    public JavaFXProgressAdapter(ProgressBar progressBar, int min, int max)
+    public JavaFXProgressAdapter2(ProgressBar progressBar, int min, int max)
     {
         this.min = min;
         this.max = max;
@@ -92,40 +92,40 @@ public class JavaFXProgressAdapter implements ProgressListener
     @Override
     public void onProgressUpdate(int current, int total)
     {
-        int actualCurrent = Math.max(min, current);
-        int actualMax = (total <= 0 ? max : total);
-
-        if (min > actualMax)
-        {
-            return;
-        }
-
         if (progressBar != null)
         {
-            long metrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
+            int actualCurrent = Math.max(min, current);
+            int actualMax = (total <= 0 ? max : total);
 
-            if (metrics != lastMetricsSnapshot)
+            if (min > actualMax)
             {
-                lastMetricsSnapshot = metrics;
-
-                int range = actualMax - min;
-                double progress = (range > 0 ? (double) (actualCurrent - min) / range : 0.0);
-                double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
-
-                Platform.runLater(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        progressBar.setProgress(boundedProgress);
-                    }
-                });
+                return;
             }
-        }
 
-        if (actualCurrent >= actualMax)
-        {
-            onCompleted(actualMax);
+            // Fast state comparison to prevent dispatching duplicate tasks to FX Application Thread
+            long newMetrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
+
+            if (newMetrics == lastMetricsSnapshot)
+            {
+                return;
+            }
+
+            lastMetricsSnapshot = newMetrics;
+
+            int range = actualMax - min;
+            double progress = (range > 0) ? (double) (actualCurrent - min) / range : 0.0;
+
+            // Bound double to [0.0, 1.0] interval
+            double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
+
+            Platform.runLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    progressBar.setProgress(boundedProgress);
+                }
+            });
         }
     }
 
