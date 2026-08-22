@@ -95,34 +95,26 @@ public class JavaFXProgressAdapter implements ProgressListener
         int actualCurrent = Math.max(min, current);
         int actualMax = (total <= 0 ? max : total);
 
-        if (min <= actualMax)
+        if (min <= actualMax && progressBar != null)
         {
-            if (actualCurrent >= actualMax)
-            {
-                onCompleted(actualMax);
-            }
+            long metrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
 
-            if (progressBar != null)
+            if (metrics != lastMetricsSnapshot)
             {
-                long metrics = ((long) actualMax << 32) | (actualCurrent & 0xFFFFFFFFL);
+                lastMetricsSnapshot = metrics;
 
-                if (metrics != lastMetricsSnapshot)
+                int range = actualMax - min;
+                double progress = (range > 0 ? (double) (actualCurrent - min) / range : 0.0);
+                double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
+
+                Platform.runLater(new Runnable()
                 {
-                    lastMetricsSnapshot = metrics;
-
-                    int range = actualMax - min;
-                    double progress = (range > 0 ? (double) (actualCurrent - min) / range : 0.0);
-                    double boundedProgress = Math.min(1.0, Math.max(0.0, progress));
-
-                    Platform.runLater(new Runnable()
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void run()
-                        {
-                            progressBar.setProgress(boundedProgress);
-                        }
-                    });
-                }
+                        progressBar.setProgress(boundedProgress);
+                    }
+                });
             }
         }
     }
