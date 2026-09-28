@@ -10,15 +10,6 @@ package progressbar;
 public interface ProgressListener
 {
     /**
-     * Notifies the listener that progress has advanced using the listener's configured total
-     * workload, if applicable.
-     *
-     * @param current
-     *        the current progress position
-     */
-    void onProgressUpdate(int current);
-
-    /**
      * Notifies the listener that progress has advanced using the specified total workload.
      *
      * <p>
@@ -32,6 +23,17 @@ public interface ProgressListener
      *        the total target workload value
      */
     void onProgressUpdate(int current, int total);
+
+    /**
+     * Notifies the listener that progress has advanced using a default total workload.
+     *
+     * @param current
+     *        the current progress position
+     */
+    default void onProgressUpdate(int current)
+    {
+        onProgressUpdate(current, 0);
+    }
 
     /**
      * Notifies the listener that the operation has completed.
