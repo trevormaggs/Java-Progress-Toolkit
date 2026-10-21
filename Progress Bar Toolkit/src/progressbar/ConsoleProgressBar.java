@@ -112,6 +112,14 @@ public final class ConsoleProgressBar implements ProgressListener
         }
     }
 
+    /**
+     * Forces the progress indicator to complete by updating it to the maximum total, ensuring any
+     * remaining gap is filled if the workload finished early.
+     *
+     * @param total
+     *        the total workload value. If {@code 0} or less, the fallback maximum value specified
+     *        at construction time is used
+     */
     @Override
     public void onCompleted(int total)
     {
