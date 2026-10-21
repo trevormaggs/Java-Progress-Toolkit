@@ -97,7 +97,8 @@ public final class ConsoleProgressBar implements ProgressListener
         }
 
         int range = actualMax - min;
-        int percent = (range > 0) ? (int) (((double) (actualCurrent - min) / range) * 100) : 0;
+        double ratio = (range > 0 ? (double) (actualCurrent - min) / range : 0.0);
+        int percent = (int) (Math.min(1.0, Math.max(0.0, ratio)) * 100);
 
         lastMetricsSnapshot = newMetrics;
 
@@ -109,6 +110,12 @@ public final class ConsoleProgressBar implements ProgressListener
             System.out.println();
             done = true;
         }
+    }
+
+    @Override
+    public void onCompleted(int total)
+    {
+        onProgressUpdate(total, total);
     }
 
     /**
